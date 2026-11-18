@@ -91,7 +91,7 @@ services:
       retries: 20
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: bitnamilegacy/minio:latest
     container_name: sfmp-minio
     restart: unless-stopped
     command: server /data --console-address ':9001'
@@ -105,7 +105,7 @@ services:
       - minio_data:/data
 
   minio-init:
-    image: alpine:3.20
+    image: pgsty/mc:latest
     container_name: sfmp-minio-init
     depends_on:
       - minio
@@ -113,9 +113,6 @@ services:
     command:
       - -lc
       - |
-        apk add --no-cache curl ca-certificates >/dev/null
-        curl -fsSL -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
-        chmod +x /usr/local/bin/mc
         until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-sfmp} ${MINIO_ROOT_PASSWORD:-sfmp12345}; do
           echo 'waiting for minio...'
           sleep 2
