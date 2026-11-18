@@ -105,7 +105,7 @@ services:
       - minio_data:/data
 
   minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    image: alpine:3.20
     container_name: sfmp-minio-init
     depends_on:
       - minio
@@ -113,6 +113,9 @@ services:
     command:
       - -lc
       - |
+        apk add --no-cache curl ca-certificates >/dev/null
+        curl -fsSL -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x /usr/local/bin/mc
         until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-sfmp} ${MINIO_ROOT_PASSWORD:-sfmp12345}; do
           echo 'waiting for minio...'
           sleep 2
