@@ -112,11 +112,11 @@ services:
         attempt=0
         until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-sfmp} ${MINIO_ROOT_PASSWORD:-sfmp12345} >/dev/null 2>&1; do
           attempt=$((attempt + 1))
-          if [ "$attempt" -ge 120 ]; then
+          if [ "$$attempt" -ge 120 ]; then
             echo 'minio did not become ready in time'
             exit 1
           fi
-          echo "waiting for minio... ($attempt/120)"
+          echo "waiting for minio... ($$attempt/120)"
           sleep 2
         done
         mc mb --ignore-existing local/sfmp-events
