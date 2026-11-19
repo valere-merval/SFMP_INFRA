@@ -169,8 +169,8 @@ services:
 
   backend:
     build:
-      context: ../BE
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: SFMP_INFRA/backend.Dockerfile
     image: sfmp-backend:local
     container_name: sfmp-backend
     restart: unless-stopped
@@ -185,7 +185,6 @@ services:
         condition: service_healthy
       minio-init:
         condition: service_completed_successfully
-    working_dir: /workspace/SFMP_BE
     environment:
       SPRING_PROFILES_ACTIVE: local
       SERVER_PORT: 8080
@@ -208,24 +207,21 @@ services:
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sfmp12345}
     ports:
       - '${BACKEND_PORT:-8080}:8080'
-    command: ['sh', '-lc', './gradlew bootRun --no-daemon']
 
   web:
     build:
-      context: ../WEB
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: SFMP_INFRA/web.Dockerfile
     image: sfmp-web:local
     container_name: sfmp-web
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_started
-    working_dir: /workspace/SFMP_WEB
     environment:
       VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8080}
     ports:
       - '${WEB_PORT:-5173}:5173'
-    command: ['sh', '-lc', 'npm run dev -- --host 0.0.0.0 --port 5173']
 
 volumes:
   postgres_data:
