@@ -98,20 +98,24 @@ services:
       - '${MINIO_CONSOLE_PORT:-9001}:9001'
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:9000/minio/health/ready >/dev/null']
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   minio-init:
     image: pgsty/mc:latest
     container_name: sfmp-minio-init
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: /bin/sh
     command:
       - -lc
       - |
-        until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-sfmp} ${MINIO_ROOT_PASSWORD:-sfmp12345}; do
-          echo 'waiting for minio...'
-          sleep 2
-        done
+        set -eu
+        mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-sfmp} ${MINIO_ROOT_PASSWORD:-sfmp12345}
         mc mb --ignore-existing local/sfmp-events
         mc mb --ignore-existing local/sfmp-media
         mc mb --ignore-existing local/sfmp-docs
