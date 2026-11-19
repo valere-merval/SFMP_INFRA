@@ -169,7 +169,7 @@ services:
 
   backend:
     build:
-      context: ../SFMP_BE
+      context: ../BE
       dockerfile: Dockerfile
     image: sfmp-backend:local
     container_name: sfmp-backend
@@ -212,7 +212,7 @@ services:
 
   web:
     build:
-      context: ../SFMP_WEB
+      context: ../WEB
       dockerfile: Dockerfile
     image: sfmp-web:local
     container_name: sfmp-web
