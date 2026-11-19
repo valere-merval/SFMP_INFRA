@@ -204,11 +204,11 @@ services:
       S3_ACCESS_KEY: ${MINIO_ROOT_USER:-sfmp}
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sfmp12345}
     volumes:
-      - ../SFMP_BE:/workspace/SFMP_BE
+      - ${SFMP_BE_PATH:-/root/sfmp/SFMP_BE}:/workspace/SFMP_BE
       - gradle_cache:/home/gradle/.gradle
     ports:
       - '${BACKEND_PORT:-8080}:8080'
-    command: ['bash', '-lc', './gradlew bootRun --no-daemon']
+    command: ['sh', '-lc', 'cd /workspace/SFMP_BE && ./gradlew bootRun --no-daemon']
 
   web:
     image: node:22-alpine
@@ -221,11 +221,11 @@ services:
     environment:
       VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8080}
     volumes:
-      - ../SFMP_WEB:/workspace/SFMP_WEB
+      - ${SFMP_WEB_PATH:-/root/sfmp/SFMP_WEB}:/workspace/SFMP_WEB
       - web_node_modules:/workspace/SFMP_WEB/node_modules
     ports:
       - '${WEB_PORT:-5173}:5173'
-    command: ['sh', '-lc', 'npm ci && npm run dev -- --host 0.0.0.0 --port 5173']
+    command: ['sh', '-lc', 'cd /workspace/SFMP_WEB && npm install && npm run dev -- --host 0.0.0.0 --port 5173']
 
 volumes:
   postgres_data:
