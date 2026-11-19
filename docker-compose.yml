@@ -168,7 +168,10 @@ services:
       - '${MONGO_EXPRESS_PORT:-8081}:8081'
 
   backend:
-    image: eclipse-temurin:21-jdk
+    build:
+      context: ${SFMP_BE_PATH:-../SFMP_BE}
+      dockerfile: Dockerfile
+    image: sfmp-backend:local
     container_name: sfmp-backend
     restart: unless-stopped
     depends_on:
@@ -203,15 +206,15 @@ services:
       S3_BUCKET: ${S3_BUCKET:-sfmp-media}
       S3_ACCESS_KEY: ${MINIO_ROOT_USER:-sfmp}
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sfmp12345}
-    volumes:
-      - ${SFMP_BE_PATH:-../SFMP_BE}:/workspace/SFMP_BE
-      - gradle_cache:/home/gradle/.gradle
     ports:
       - '${BACKEND_PORT:-8080}:8080'
-    command: ['sh', '-lc', 'cd /workspace/SFMP_BE && ./gradlew bootRun --no-daemon']
+    command: ['sh', '-lc', './gradlew bootRun --no-daemon']
 
   web:
-    image: node:22-alpine
+    build:
+      context: ${SFMP_WEB_PATH:-../SFMP_WEB}
+      dockerfile: Dockerfile
+    image: sfmp-web:local
     container_name: sfmp-web
     restart: unless-stopped
     depends_on:
@@ -220,16 +223,11 @@ services:
     working_dir: /workspace/SFMP_WEB
     environment:
       VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8080}
-    volumes:
-      - ${SFMP_WEB_PATH:-../SFMP_WEB}:/workspace/SFMP_WEB
-      - web_node_modules:/workspace/SFMP_WEB/node_modules
     ports:
       - '${WEB_PORT:-5173}:5173'
-    command: ['sh', '-lc', 'cd /workspace/SFMP_WEB && npm install && npm run dev -- --host 0.0.0.0 --port 5173']
+    command: ['sh', '-lc', 'npm run dev -- --host 0.0.0.0 --port 5173']
 
 volumes:
   postgres_data:
   mongo_data:
   minio_data:
-  gradle_cache:
-  web_node_modules:
